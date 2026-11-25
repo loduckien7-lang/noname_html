@@ -1,1 +1,1421 @@
-<h1>Xin chao Git</h1>
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lịch Dương Việt Nam - Hiện Đại & Trực Quan</title>
+  
+  <!-- Google Fonts: Inter hỗ trợ đầy đủ tiếng Việt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 10px 30px -5px rgba(15, 23, 42, 0.06)',
+            'soft-dark': '0 10px 30px -5px rgba(0, 0, 0, 0.45)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Tùy chỉnh thanh cuộn tinh tế */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.65);
+    }
+
+    /* Hiệu ứng chuyển đổi mượt mà */
+    .calendar-cell {
+      transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  background-color 0.16s ease,
+                  border-color 0.16s ease,
+                  box-shadow 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .calendar-cell:active {
+      transform: scale(0.95);
+    }
+
+    /* Tùy chỉnh mũi tên thẻ select */
+    select.custom-select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.15em 1.15em;
+      padding-right: 2rem;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100/90 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Thanh điều hướng trên cùng (Header) -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <!-- Logo & Tiêu đề -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <path d="M8 14h.01"></path>
+            <path d="M12 14h.01"></path>
+            <path d="M16 14h.01"></path>
+            <path d="M8 18h.01"></path>
+            <path d="M12 18h.01"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            Lịch Dương Việt Nam
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+            Tra cứu ngày tháng, sự kiện & ghi chú cá nhân
+          </p>
+        </div>
+      </div>
+
+      <!-- Các nút tiện ích góc phải -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Nút nhanh Hôm nay trên mobile/header -->
+        <button id="headerTodayBtn" type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-300 dark:hover:bg-indigo-500/25 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Hôm nay</span>
+        </button>
+
+        <!-- Nút chuyển đổi giao diện Sáng / Tối -->
+        <button id="themeToggleBtn" type="button" aria-label="Chuyển đổi giao diện Sáng / Tối"
+          class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all shadow-sm">
+          <!-- Icon Mặt trời (hiện ở Dark mode) -->
+          <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <!-- Icon Mặt trăng (hiện ở Light mode) -->
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nội dung chính chia 2 cột cân đối -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- CỘT BÊN TRÁI: KHUNG LỊCH CHÍNH (7/12 cột trên desktop) -->
+      <section class="lg:col-span-7 xl:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft dark:shadow-soft-dark p-4 sm:p-6">
+        
+        <!-- Thanh điều hướng Tháng & Năm -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+          <!-- Tiêu đề Tháng Năm & Bộ chọn nhanh -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <h2 id="currentMonthYearTitle" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mr-1">
+              Tháng 11, 2026
+            </h2>
+            
+            <div class="flex items-center gap-2">
+              <label for="monthSelect" class="sr-only">Chọn tháng</label>
+              <select id="monthSelect"
+                class="custom-select rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold py-2 pl-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              </select>
+
+              <label for="yearSelect" class="sr-only">Chọn năm</label>
+              <select id="yearSelect"
+                class="custom-select rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold py-2 pl-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              </select>
+            </div>
+          </div>
+
+          <!-- Cụm nút điều hướng Năm trước / Tháng trước / Hôm nay / Tháng sau / Năm sau -->
+          <div class="flex items-center justify-between sm:justify-end gap-1.5">
+            <button id="prevYearBtn" type="button" title="Năm trước" aria-label="Năm trước"
+              class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="11 17 6 12 11 7"></polyline>
+                <polyline points="18 17 13 12 18 7"></polyline>
+              </svg>
+            </button>
+
+            <button id="prevMonthBtn" type="button" title="Tháng trước" aria-label="Tháng trước"
+              class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+
+            <button id="todayBtn" type="button"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/25 transition-all active:scale-95">
+              Hôm nay
+            </button>
+
+            <button id="nextMonthBtn" type="button" title="Tháng sau" aria-label="Tháng sau"
+              class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <button id="nextYearBtn" type="button" title="Năm sau" aria-label="Năm sau"
+              class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="13 17 18 12 13 7"></polyline>
+                <polyline points="6 17 11 12 6 7"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hàng tiêu đề các thứ trong tuần (Chuẩn Việt Nam: T2 -> CN) -->
+        <div class="grid grid-cols-7 gap-1.5 sm:gap-2 mt-5 mb-2 text-center">
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">T2</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">T3</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">T4</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">T5</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">T6</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 bg-sky-50/70 dark:bg-sky-500/10 rounded-xl">T7</div>
+          <div class="py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-500/10 rounded-xl">CN</div>
+        </div>
+
+        <!-- Lưới lịch 6 hàng x 7 cột (42 ô) - Hỗ trợ vuốt ngang trên cảm ứng -->
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2 select-none touch-pan-y">
+          <!-- Các ô ngày sẽ được render bằng JavaScript -->
+        </div>
+
+        <!-- Chú thích ký hiệu dưới lưới lịch -->
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div class="flex flex-wrap items-center gap-4">
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-md border-2 border-indigo-500 inline-block"></span>
+              <span>Hôm nay</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-md bg-indigo-600 inline-block"></span>
+              <span>Đang chọn</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+              <span>Ngày lễ / Kỷ niệm</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              <span>Có ghi chú</span>
+            </span>
+          </div>
+          <span class="hidden sm:inline text-[11px] text-slate-400 dark:text-slate-500">
+            Mẹo: Dùng phím mũi tên để di chuyển ngày
+          </span>
+        </div>
+      </section>
+
+      <!-- CỘT BÊN PHẢI: CHI TIẾT NGÀY & GHI CHÚ CÁ NHÂN (5/12 cột trên desktop) -->
+      <aside class="lg:col-span-5 xl:col-span-4 space-y-5">
+        
+        <!-- Thẻ Đồng hồ thời gian thực & Chi tiết ngày đang chọn -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft dark:shadow-soft-dark overflow-hidden">
+          
+          <!-- Banner Đồng hồ số thời gian thực -->
+          <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 dark:from-slate-800/90 dark:via-indigo-950/90 dark:to-slate-800/90 px-5 py-4 text-white flex items-center justify-between">
+            <div>
+              <div class="text-[11px] uppercase tracking-wider text-indigo-300 font-semibold">
+                Thời gian hiện tại
+              </div>
+              <div id="liveDateSubtitle" class="text-xs text-slate-300 mt-0.5">
+                Đang tải...
+              </div>
+            </div>
+            <div id="liveClock" class="font-mono text-xl sm:text-2xl font-bold tracking-wider bg-white/10 backdrop-blur-sm px-3.5 py-1.5 rounded-xl border border-white/10 tabular-nums">
+              00:00:00
+            </div>
+          </div>
+
+          <!-- Chi tiết ngày được chọn -->
+          <div class="p-5 sm:p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span id="selectedWeekday" class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    Thứ Hai
+                  </span>
+                  <span id="relativeDayBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                    Hôm nay
+                  </span>
+                </div>
+                <div id="selectedFullDate" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-1">
+                  Ngày 23 tháng 11 năm 2026
+                </div>
+              </div>
+
+              <!-- Ô số ngày lớn nổi bật -->
+              <div id="selectedBigDayBox" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex flex-col items-center justify-center shadow-lg shadow-indigo-500/25 shrink-0">
+                <span id="selectedBigDay" class="text-3xl sm:text-4xl font-extrabold leading-none">23</span>
+                <span id="selectedShortMonth" class="text-[11px] font-semibold uppercase tracking-wider opacity-90 mt-1">Thg 11</span>
+              </div>
+            </div>
+
+            <!-- Chỉ số phụ của ngày trong năm -->
+            <div class="grid grid-cols-3 gap-2.5 mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-3 text-center">
+                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Ngày trong năm</div>
+                <div id="dayOfYearStat" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                  327 / 365
+                </div>
+              </div>
+              <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-3 text-center">
+                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Tuần thứ</div>
+                <div id="weekOfYearStat" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                  Tuần 48
+                </div>
+              </div>
+              <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-3 text-center">
+                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Loại năm</div>
+                <div id="leapYearStat" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                  Năm thường
+                </div>
+              </div>
+            </div>
+
+            <!-- Khu vực Ngày lễ / Sự kiện dương lịch -->
+            <div class="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                  <span>Ngày lễ & Sự kiện dương lịch</span>
+                </h3>
+              </div>
+              
+              <div id="selectedHolidaysContainer" class="space-y-2.5">
+                <!-- Danh sách ngày lễ của ngày được chọn -->
+              </div>
+
+              <!-- Gợi ý các ngày lễ khác trong tháng đang xem -->
+              <div id="monthHolidaysSummary" class="mt-4 pt-3.5 border-t border-dashed border-slate-200 dark:border-slate-800">
+                <!-- Render tự động -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thẻ Ghi chú cá nhân theo ngày -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft dark:shadow-soft-dark p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </span>
+              <span>Ghi chú cá nhân</span>
+            </h3>
+            <span id="notesCountBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              0 ghi chú
+            </span>
+          </div>
+
+          <!-- Form thêm ghi chú -->
+          <form id="noteForm" class="flex gap-2 mb-4">
+            <label for="noteInput" class="sr-only">Nhập nội dung ghi chú</label>
+            <input id="noteInput" type="text" maxlength="200" autocomplete="off"
+              placeholder="Thêm nhắc việc cho ngày này..."
+              class="flex-1 min-w-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition-all" />
+            <button type="submit"
+              class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm shadow-indigo-500/20 transition-all active:scale-95 shrink-0">
+              Thêm
+            </button>
+          </form>
+
+          <!-- Danh sách ghi chú đã lưu -->
+          <div id="notesList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+            <!-- Các ghi chú sẽ được render bằng JavaScript -->
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </main>
+
+  <!-- Thông báo nổi (Toast Notification) thay thế cho alert() -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    /**
+     * =========================================================================
+     * DỮ LIỆU NGÀY LỄ & SỰ KIỆN DƯƠNG LỊCH VIỆT NAM & QUỐC TẾ
+     * Định dạng khóa: "Tháng-Ngày" (không có số 0 đứng trước)
+     * =========================================================================
+     */
+    const FIXED_HOLIDAYS = {
+      "1-1": [
+        { title: "Tết Dương lịch", category: "Ngày lễ lớn", badgeColor: "rose", desc: "Ngày đầu tiên của năm mới theo lịch Gregory (Quốc tế)." }
+      ],
+      "1-9": [
+        { title: "Ngày Truyền thống Học sinh - Sinh viên Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Kỷ niệm phong trào đấu tranh của học sinh, sinh viên năm 1950." }
+      ],
+      "2-3": [
+        { title: "Ngày thành lập Đảng Cộng sản Việt Nam", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Kỷ niệm ngày thành lập Đảng Cộng sản Việt Nam (03/02/1930)." }
+      ],
+      "2-14": [
+        { title: "Lễ Tình nhân (Valentine)", category: "Quốc tế", badgeColor: "pink", desc: "Ngày tôn vinh tình yêu đôi lứa trên toàn thế giới." }
+      ],
+      "2-27": [
+        { title: "Ngày Thầy thuốc Việt Nam", category: "Kỷ niệm VN", badgeColor: "emerald", desc: "Tri ân đội ngũ y bác sĩ và những người công tác trong ngành y tế." }
+      ],
+      "3-8": [
+        { title: "Ngày Quốc tế Phụ nữ", category: "Quốc tế", badgeColor: "pink", desc: "Ngày tôn vinh vai trò, đóng góp và quyền bình đẳng của phụ nữ." }
+      ],
+      "3-20": [
+        { title: "Ngày Quốc tế Hạnh phúc", category: "Quốc tế", badgeColor: "amber", desc: "Ngày tôn vinh niềm hạnh phúc của nhân loại do Liên Hợp Quốc phát động." }
+      ],
+      "3-26": [
+        { title: "Ngày thành lập Đoàn TNCS Hồ Chí Minh", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Ngày truyền thống của thanh niên Việt Nam (26/03/1931)." }
+      ],
+      "4-1": [
+        { title: "Ngày Cá tháng Tư", category: "Quốc tế", badgeColor: "amber", desc: "Ngày hội vui đùa hài hước phổ biến tại nhiều quốc gia." }
+      ],
+      "4-21": [
+        { title: "Ngày Sách và Văn hóa đọc Việt Nam", category: "Văn hóa VN", badgeColor: "indigo", desc: "Khuyến khích và phát triển phong trào đọc sách trong cộng đồng." }
+      ],
+      "4-30": [
+        { title: "Ngày Giải phóng miền Nam, thống nhất đất nước", category: "Ngày lễ lớn", badgeColor: "rose", desc: "Kỷ niệm sự kiện lịch sử 30/04/1975 thống nhất hai miền Nam - Bắc." }
+      ],
+      "5-1": [
+        { title: "Ngày Quốc tế Lao động", category: "Ngày lễ lớn", badgeColor: "rose", desc: "Ngày kỷ niệm phong trào công nhân và người lao động toàn thế giới." }
+      ],
+      "5-7": [
+        { title: "Ngày Chiến thắng Điện Biên Phủ", category: "Lịch sử VN", badgeColor: "rose", desc: "Kỷ niệm chiến thắng lừng lẫy năm châu, chấn động địa cầu (07/05/1954)." }
+      ],
+      "5-15": [
+        { title: "Ngày thành lập Đội TNTP Hồ Chí Minh", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Kỷ niệm ngày thành lập Đội Thiếu niên Tiền phong Hồ Chí Minh (1941)." }
+      ],
+      "5-19": [
+        { title: "Ngày sinh Chủ tịch Hồ Chí Minh", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Kỷ niệm ngày sinh vị lãnh tụ kính yêu của dân tộc Việt Nam (19/05/1890)." }
+      ],
+      "6-1": [
+        { title: "Ngày Quốc tế Thiếu nhi", category: "Quốc tế", badgeColor: "amber", desc: "Ngày Tết dành riêng cho trẻ em trên toàn thế giới." }
+      ],
+      "6-5": [
+        { title: "Ngày Môi trường Thế giới & Bác Hồ ra đi tìm đường cứu nước", category: "Sự kiện", badgeColor: "emerald", desc: "Nâng cao ý thức bảo vệ môi trường và kỷ niệm sự kiện lịch sử năm 1911." }
+      ],
+      "6-21": [
+        { title: "Ngày Báo chí Cách mạng Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Kỷ niệm ngày ra số đầu tiên của báo Thanh Niên năm 1925." }
+      ],
+      "6-28": [
+        { title: "Ngày Gia đình Việt Nam", category: "Văn hóa VN", badgeColor: "amber", desc: "Tôn vinh những giá trị văn hóa truyền thống tốt đẹp của gia đình Việt." }
+      ],
+      "7-11": [
+        { title: "Ngày Dân số Thế giới", category: "Quốc tế", badgeColor: "indigo", desc: "Nâng cao nhận thức toàn cầu về các vấn đề dân số và phát triển." }
+      ],
+      "7-27": [
+        { title: "Ngày Thương binh - Liệt sĩ", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Ngày tưởng nhớ, tri ân các anh hùng liệt sĩ, thương bệnh binh." }
+      ],
+      "7-28": [
+        { title: "Ngày thành lập Công đoàn Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Kỷ niệm ngày thành lập tổ chức Công đoàn Việt Nam (28/07/1929)." }
+      ],
+      "8-19": [
+        { title: "Ngày Cách mạng Tháng Tám thành công", category: "Lịch sử VN", badgeColor: "rose", desc: "Kỷ niệm thắng lợi của cuộc Tổng khởi nghĩa Tháng Tám năm 1945." }
+      ],
+      "9-2": [
+        { title: "Ngày Quốc khánh nước CHXHCN Việt Nam", category: "Ngày lễ lớn", badgeColor: "rose", desc: "Kỷ niệm Chủ tịch Hồ Chí Minh đọc bản Tuyên ngôn Độc lập (02/09/1945)." }
+      ],
+      "9-10": [
+        { title: "Ngày thành lập Mặt trận Tổ quốc Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Kỷ niệm ngày thành lập Mặt trận Tổ quốc Việt Nam (10/09/1955)." }
+      ],
+      "10-1": [
+        { title: "Ngày Quốc tế Người cao tuổi", category: "Quốc tế", badgeColor: "emerald", desc: "Tôn vinh và chăm sóc sức khỏe, đời sống tinh thần người cao tuổi." }
+      ],
+      "10-10": [
+        { title: "Ngày Giải phóng Thủ đô", category: "Lịch sử VN", badgeColor: "rose", desc: "Kỷ niệm ngày quân dân ta tiếp quản Thủ đô Hà Nội (10/10/1954)." }
+      ],
+      "10-13": [
+        { title: "Ngày Doanh nhân Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Tôn vinh cộng đồng doanh nhân và đóng góp cho phát triển kinh tế." }
+      ],
+      "10-20": [
+        { title: "Ngày Phụ nữ Việt Nam", category: "Kỷ niệm VN", badgeColor: "pink", desc: "Tôn vinh phụ nữ Việt Nam nhân dịp thành lập Hội LHPN Việt Nam (1930)." }
+      ],
+      "10-31": [
+        { title: "Lễ hội Halloween", category: "Quốc tế", badgeColor: "amber", desc: "Lễ hội hóa trang truyền thống phổ biến ở nhiều nước phương Tây." }
+      ],
+      "11-9": [
+        { title: "Ngày Pháp luật Việt Nam", category: "Kỷ niệm VN", badgeColor: "indigo", desc: "Tôn vinh Hiến pháp, pháp luật và giáo dục ý thức thượng tôn pháp luật." }
+      ],
+      "11-19": [
+        { title: "Ngày Quốc tế Nam giới", category: "Quốc tế", badgeColor: "indigo", desc: "Tôn vinh những đóng góp tích cực của nam giới cho gia đình và xã hội." }
+      ],
+      "11-20": [
+        { title: "Ngày Nhà giáo Việt Nam", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Ngày truyền thống tôn sư trọng đạo, tri ân các thầy cô giáo." }
+      ],
+      "11-23": [
+        { title: "Ngày thành lập Hội Chữ thập đỏ Việt Nam", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Kỷ niệm ngày thành lập Hội Chữ thập đỏ Việt Nam (23/11/1946)." }
+      ],
+      "12-1": [
+        { title: "Ngày Thế giới phòng chống AIDS", category: "Quốc tế", badgeColor: "rose", desc: "Nâng cao nhận thức và đoàn kết phòng chống đại dịch HIV/AIDS." }
+      ],
+      "12-19": [
+        { title: "Ngày Toàn quốc kháng chiến", category: "Lịch sử VN", badgeColor: "rose", desc: "Kỷ niệm lời kêu gọi Toàn quốc kháng chiến của Chủ tịch Hồ Chí Minh (1946)." }
+      ],
+      "12-22": [
+        { title: "Ngày thành lập Quân đội Nhân dân Việt Nam", category: "Kỷ niệm VN", badgeColor: "rose", desc: "Ngày Hội Quốc phòng toàn dân, kỷ niệm thành lập QĐND Việt Nam (1944)." }
+      ],
+      "12-24": [
+        { title: "Đêm Giáng sinh (Christmas Eve)", category: "Quốc tế", badgeColor: "emerald", desc: "Đêm vọng lễ Giáng sinh ấm áp bên gia đình và người thân." }
+      ],
+      "12-25": [
+        { title: "Lễ Giáng sinh (Noel)", category: "Quốc tế", badgeColor: "emerald", desc: "Ngày lễ kỷ niệm Chúa Giêsu ra đời, phổ biến trên toàn thế giới." }
+      ]
+    };
+
+    /**
+     * Lấy danh sách ngày lễ (bao gồm cả ngày lễ cố định và ngày lễ động theo thứ)
+     */
+    function getHolidaysForDate(year, monthIndex, day) {
+      const month = monthIndex + 1; // 1 -> 12
+      const key = `${month}-${day}`;
+      const results = FIXED_HOLIDAYS[key] ? [...FIXED_HOLIDAYS[key]] : [];
+
+      const dateObj = new Date(year, monthIndex, day);
+      const dayOfWeek = dateObj.getDay(); // 0 = Chủ Nhật
+
+      // Ngày của Mẹ: Chủ Nhật thứ 2 của tháng 5
+      if (month === 5 && dayOfWeek === 0 && day >= 8 && day <= 14) {
+        results.push({
+          title: "Ngày của Mẹ (Mother's Day)",
+          category: "Quốc tế",
+          badgeColor: "pink",
+          desc: "Chủ Nhật thứ hai của tháng 5 - Dịp bày tỏ lòng biết ơn và yêu thương tới Mẹ."
+        });
+      }
+
+      // Ngày của Cha: Chủ Nhật thứ 3 của tháng 6
+      if (month === 6 && dayOfWeek === 0 && day >= 15 && day <= 21) {
+        results.push({
+          title: "Ngày của Cha (Father's Day)",
+          category: "Quốc tế",
+          badgeColor: "indigo",
+          desc: "Chủ Nhật thứ ba của tháng 6 - Dịp tôn vinh tình phụ tử và công ơn của Cha."
+        });
+      }
+
+      return results;
+    }
+
+    /**
+     * =========================================================================
+     * CÁC HÀM TIỆN ÍCH XỬ LÝ NGÀY THÁNG (GREGORIAN CALENDAR)
+     * =========================================================================
+     */
+    const MIN_YEAR = 1900;
+    const MAX_YEAR = 2100;
+    const STORAGE_NOTES_KEY = "vn_gregorian_calendar_notes_v1";
+    const STORAGE_THEME_KEY = "vn_gregorian_calendar_theme_v1";
+
+    const WEEKDAY_NAMES_VI = [
+      "Chủ Nhật",
+      "Thứ Hai",
+      "Thứ Ba",
+      "Thứ Tư",
+      "Thứ Năm",
+      "Thứ Sáu",
+      "Thứ Bảy"
+    ];
+
+    function isLeapYear(year) {
+      return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+
+    function getDaysInMonth(year, monthIndex) {
+      return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    /**
+     * Trả về chỉ số thứ của ngày đầu tháng theo chuẩn Việt Nam:
+     * 0 = Thứ 2, 1 = Thứ 3, ..., 5 = Thứ 7, 6 = Chủ Nhật
+     */
+    function getFirstDayOffsetMondayStart(year, monthIndex) {
+      const jsDay = new Date(year, monthIndex, 1).getDay(); // 0 (CN) -> 6 (T7)
+      return (jsDay + 6) % 7;
+    }
+
+    function getDayOfYear(year, monthIndex, day) {
+      const start = Date.UTC(year, 0, 0);
+      const current = Date.UTC(year, monthIndex, day);
+      return Math.floor((current - start) / 86400000);
+    }
+
+    /**
+     * Tính tuần thứ mấy trong năm theo chuẩn ISO-8601 (Tuần bắt đầu từ Thứ 2)
+     */
+    function getISOWeekNumber(year, monthIndex, day) {
+      const date = new Date(Date.UTC(year, monthIndex, day));
+      const dayNum = date.getUTCDay() || 7;
+      date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function formatDateKey(year, monthIndex, day) {
+      const m = String(monthIndex + 1).padStart(2, "0");
+      const d = String(day).padStart(2, "0");
+      return `${year}-${m}-${d}`;
+    }
+
+    function isSameDate(a, b) {
+      return a.year === b.year && a.month === b.month && a.day === b.day;
+    }
+
+    function getTodayObject() {
+      const now = new Date();
+      return {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        day: now.getDate()
+      };
+    }
+
+    function clampYear(y) {
+      return Math.min(MAX_YEAR, Math.max(MIN_YEAR, y));
+    }
+
+    function clampDay(year, monthIndex, day) {
+      const maxDays = getDaysInMonth(year, monthIndex);
+      return Math.min(day, maxDays);
+    }
+
+    /**
+     * =========================================================================
+     * QUẢN LÝ TRẠNG THÁI ỨNG DỤNG (STATE)
+     * =========================================================================
+     */
+    const initialToday = getTodayObject();
+    const state = {
+      today: initialToday,
+      viewYear: clampYear(initialToday.year),
+      viewMonth: initialToday.month,
+      selected: {
+        year: clampYear(initialToday.year),
+        month: initialToday.month,
+        day: initialToday.day
+      },
+      notes: loadNotesFromStorage()
+    };
+
+    function loadNotesFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_NOTES_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.error("Không thể đọc dữ liệu ghi chú từ localStorage:", e);
+        return {};
+      }
+    }
+
+    function saveNotesToStorage() {
+      try {
+        localStorage.setItem(STORAGE_NOTES_KEY, JSON.stringify(state.notes));
+      } catch (e) {
+        console.error("Không thể lưu ghi chú vào localStorage:", e);
+        showToast("Trình duyệt đang hạn chế bộ nhớ lưu trữ.", "error");
+      }
+    }
+
+    /**
+     * =========================================================================
+     * THÔNG BÁO NỔI (TOAST) & GIAO DIỆN SÁNG / TỐI
+     * =========================================================================
+     */
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      
+      const colors = {
+        info: "bg-slate-900 text-white dark:bg-slate-800 border-slate-700",
+        success: "bg-emerald-600 text-white border-emerald-500",
+        error: "bg-rose-600 text-white border-rose-500"
+      };
+
+      toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      });
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 2400);
+    }
+
+    function initTheme() {
+      let savedTheme = null;
+      try {
+        savedTheme = localStorage.getItem(STORAGE_THEME_KEY);
+      } catch (e) {}
+
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const isDark = savedTheme ? savedTheme === "dark" : prefersDark;
+      applyTheme(isDark);
+    }
+
+    function applyTheme(isDark) {
+      const html = document.documentElement;
+      const sunIcon = document.getElementById("sunIcon");
+      const moonIcon = document.getElementById("moonIcon");
+
+      if (isDark) {
+        html.classList.add("dark");
+        html.classList.remove("light");
+        sunIcon.classList.remove("hidden");
+        moonIcon.classList.add("hidden");
+      } else {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        sunIcon.classList.add("hidden");
+        moonIcon.classList.remove("hidden");
+      }
+
+      try {
+        localStorage.setItem(STORAGE_THEME_KEY, isDark ? "dark" : "light");
+      } catch (e) {}
+    }
+
+    /**
+     * =========================================================================
+     * ĐỒNG HỒ SỐ THỜI GIAN THỰC
+     * =========================================================================
+     */
+    function updateLiveClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+
+      const clockEl = document.getElementById("liveClock");
+      if (clockEl) {
+        clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+
+      const currentToday = {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        day: now.getDate()
+      };
+
+      const liveDateSub = document.getElementById("liveDateSubtitle");
+      if (liveDateSub) {
+        const weekday = WEEKDAY_NAMES_VI[now.getDay()];
+        liveDateSub.textContent = `${weekday}, ${String(currentToday.day).padStart(2, "0")}/${String(currentToday.month + 1).padStart(2, "0")}/${currentToday.year}`;
+      }
+
+      // Tự động cập nhật nếu bước sang ngày mới lúc nửa đêm
+      if (!isSameDate(state.today, currentToday)) {
+        state.today = currentToday;
+        renderAll();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * KHỞI TẠO BỘ CHỌN NHANH THÁNG & NĂM (1900 - 2100)
+     * =========================================================================
+     */
+    function populateSelectors() {
+      const monthSelect = document.getElementById("monthSelect");
+      const yearSelect = document.getElementById("yearSelect");
+
+      monthSelect.innerHTML = "";
+      for (let m = 0; m < 12; m++) {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = `Tháng ${m + 1}`;
+        monthSelect.appendChild(opt);
+      }
+
+      yearSelect.innerHTML = "";
+      for (let y = MIN_YEAR; y <= MAX_YEAR; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = `Năm ${y}`;
+        yearSelect.appendChild(opt);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * RENDER LƯỚI LỊCH CHÍNH (6 HÀNG x 7 CỘT = 42 Ô)
+     * =========================================================================
+     */
+    function renderCalendarGrid() {
+      const grid = document.getElementById("calendarGrid");
+      const titleEl = document.getElementById("currentMonthYearTitle");
+      const monthSelect = document.getElementById("monthSelect");
+      const yearSelect = document.getElementById("yearSelect");
+
+      const { viewYear, viewMonth, today, selected } = state;
+
+      titleEl.textContent = `Tháng ${viewMonth + 1}, ${viewYear}`;
+      monthSelect.value = viewMonth;
+      yearSelect.value = viewYear;
+
+      // Cập nhật trạng thái vô hiệu hóa ở biên 1900 / 2100
+      document.getElementById("prevYearBtn").disabled = viewYear <= MIN_YEAR;
+      document.getElementById("prevMonthBtn").disabled = viewYear <= MIN_YEAR && viewMonth === 0;
+      document.getElementById("nextYearBtn").disabled = viewYear >= MAX_YEAR;
+      document.getElementById("nextMonthBtn").disabled = viewYear >= MAX_YEAR && viewMonth === 11;
+
+      const daysInCurrentMonth = getDaysInMonth(viewYear, viewMonth);
+      const firstDayOffset = getFirstDayOffsetMondayStart(viewYear, viewMonth);
+
+      // Tính tháng trước & tháng sau
+      const prevMonthIndex = viewMonth === 0 ? 11 : viewMonth - 1;
+      const prevMonthYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+      const daysInPrevMonth = getDaysInMonth(prevMonthYear, prevMonthIndex);
+
+      const nextMonthIndex = viewMonth === 11 ? 0 : viewMonth + 1;
+      const nextMonthYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+
+      const fragment = document.createDocumentFragment();
+
+      for (let cellIndex = 0; cellIndex < 42; cellIndex++) {
+        let cellYear, cellMonth, cellDay, isCurrentMonth;
+
+        if (cellIndex < firstDayOffset) {
+          // Các ngày cuối của tháng trước
+          cellDay = daysInPrevMonth - firstDayOffset + cellIndex + 1;
+          cellMonth = prevMonthIndex;
+          cellYear = prevMonthYear;
+          isCurrentMonth = false;
+        } else if (cellIndex >= firstDayOffset + daysInCurrentMonth) {
+          // Các ngày đầu của tháng sau
+          cellDay = cellIndex - (firstDayOffset + daysInCurrentMonth) + 1;
+          cellMonth = nextMonthIndex;
+          cellYear = nextMonthYear;
+          isCurrentMonth = false;
+        } else {
+          // Các ngày trong tháng hiện tại
+          cellDay = cellIndex - firstDayOffset + 1;
+          cellMonth = viewMonth;
+          cellYear = viewYear;
+          isCurrentMonth = true;
+        }
+
+        const cellDateObj = { year: cellYear, month: cellMonth, day: cellDay };
+        const isToday = isSameDate(cellDateObj, today);
+        const isSelected = isSameDate(cellDateObj, selected);
+        const colIndex = cellIndex % 7; // 5 = Thứ 7, 6 = Chủ Nhật
+        const isSaturday = colIndex === 5;
+        const isSunday = colIndex === 6;
+
+        const holidays = getHolidaysForDate(cellYear, cellMonth, cellDay);
+        const dateKey = formatDateKey(cellYear, cellMonth, cellDay);
+        const dayNotes = state.notes[dateKey] || [];
+        const hasNotes = dayNotes.length > 0;
+        const hasHolidays = holidays.length > 0;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.setAttribute("aria-label", `Ngày ${cellDay} tháng ${cellMonth + 1} năm ${cellYear}`);
+
+        // Xác định lớp CSS cho từng trạng thái của ô ngày
+        let baseClasses = "calendar-cell relative group flex flex-col items-center justify-between min-h-[54px] sm:min-h-[72px] p-1.5 sm:p-2 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/60 ";
+
+        if (isSelected) {
+          baseClasses += "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/30 z-10 ";
+        } else if (isToday) {
+          baseClasses += "bg-indigo-50/90 dark:bg-indigo-500/15 border-indigo-500 dark:border-indigo-400 text-indigo-700 dark:text-indigo-200 ";
+        } else if (!isCurrentMonth) {
+          baseClasses += "bg-slate-50/60 dark:bg-slate-900/40 border-transparent text-slate-400 dark:text-slate-600 opacity-55 hover:opacity-90 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 ";
+        } else {
+          baseClasses += "bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-800/80 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-800 ";
+        }
+
+        btn.className = baseClasses;
+
+        // Màu chữ của số ngày
+        let dayNumberColor = "";
+        if (isSelected) {
+          dayNumberColor = "text-white";
+        } else if (isToday) {
+          dayNumberColor = "text-indigo-700 dark:text-indigo-300";
+        } else if (!isCurrentMonth) {
+          dayNumberColor = "text-slate-400 dark:text-slate-600";
+        } else if (isSunday || hasHolidays) {
+          dayNumberColor = "text-rose-600 dark:text-rose-400";
+        } else if (isSaturday) {
+          dayNumberColor = "text-sky-600 dark:text-sky-400";
+        } else {
+          dayNumberColor = "text-slate-800 dark:text-slate-100";
+        }
+
+        // Nhãn phụ "Hôm nay" hoặc tên ngày lễ rút gọn trên màn hình lớn
+        let subLabelHtml = "";
+        if (hasHolidays) {
+          const shortTitle = holidays[0].title;
+          subLabelHtml = `
+            <span class="hidden sm:block w-full truncate text-[10px] leading-tight font-medium px-1 rounded ${
+              isSelected
+                ? "text-indigo-100 bg-white/15"
+                : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
+            }">
+              ${shortTitle}
+            </span>
+          `;
+        } else if (isToday) {
+          subLabelHtml = `
+            <span class="hidden sm:block text-[10px] leading-tight font-semibold ${
+              isSelected ? "text-indigo-100" : "text-indigo-600 dark:text-indigo-400"
+            }">
+              Hôm nay
+            </span>
+          `;
+        }
+
+        // Các chấm chỉ báo (Ngày lễ & Ghi chú)
+        let dotsHtml = "";
+        if (hasHolidays || hasNotes) {
+          dotsHtml = `<div class="flex items-center justify-center gap-1 mt-0.5">`;
+          if (hasHolidays) {
+            dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? "bg-rose-200" : "bg-rose-500"}" title="Có ngày lễ"></span>`;
+          }
+          if (hasNotes) {
+            dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? "bg-emerald-200" : "bg-emerald-500"}" title="Có ghi chú cá nhân"></span>`;
+          }
+          dotsHtml += `</div>`;
+        } else {
+          dotsHtml = `<div class="h-1.5 mt-0.5"></div>`;
+        }
+
+        btn.innerHTML = `
+          <div class="w-full flex items-center justify-center relative">
+            <span class="text-sm sm:text-base font-bold leading-none ${dayNumberColor}">
+              ${cellDay}
+            </span>
+          </div>
+          ${subLabelHtml}
+          ${dotsHtml}
+        `;
+
+        btn.addEventListener("click", () => {
+          selectDate(cellYear, cellMonth, cellDay);
+        });
+
+        fragment.appendChild(btn);
+      }
+
+      grid.innerHTML = "";
+      grid.appendChild(fragment);
+    }
+
+    /**
+     * =========================================================================
+     * RENDER BẢNG CHI TIẾT NGÀY & SỰ KIỆN BÊN PHẢI
+     * =========================================================================
+     */
+    function renderDateDetails() {
+      const { year, month, day } = state.selected;
+      const dateObj = new Date(year, month, day);
+      const weekdayIndex = dateObj.getDay();
+      const weekdayName = WEEKDAY_NAMES_VI[weekdayIndex];
+
+      // Cập nhật tiêu đề & số ngày lớn
+      const weekdayEl = document.getElementById("selectedWeekday");
+      weekdayEl.textContent = weekdayName;
+      weekdayEl.className = `text-sm font-bold uppercase tracking-wider ${
+        weekdayIndex === 0
+          ? "text-rose-600 dark:text-rose-400"
+          : weekdayIndex === 6
+          ? "text-sky-600 dark:text-sky-400"
+          : "text-indigo-600 dark:text-indigo-400"
+      }`;
+
+      document.getElementById("selectedFullDate").textContent = `Ngày ${day} tháng ${month + 1} năm ${year}`;
+      document.getElementById("selectedBigDay").textContent = String(day).padStart(2, "0");
+      document.getElementById("selectedShortMonth").textContent = `Thg ${month + 1}`;
+
+      // Đổi màu ô số lớn nếu là Chủ Nhật
+      const bigBox = document.getElementById("selectedBigDayBox");
+      if (weekdayIndex === 0) {
+        bigBox.className = "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex flex-col items-center justify-center shadow-lg shadow-rose-500/25 shrink-0";
+      } else {
+        bigBox.className = "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex flex-col items-center justify-center shadow-lg shadow-indigo-500/25 shrink-0";
+      }
+
+      // Tính khoảng cách tương đối so với Hôm nay
+      const todayUTC = Date.UTC(state.today.year, state.today.month, state.today.day);
+      const selectedUTC = Date.UTC(year, month, day);
+      const diffDays = Math.round((selectedUTC - todayUTC) / 86400000);
+
+      const relativeBadge = document.getElementById("relativeDayBadge");
+      if (diffDays === 0) {
+        relativeBadge.textContent = "Hôm nay";
+        relativeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-500/25 dark:text-indigo-300";
+      } else if (diffDays === 1) {
+        relativeBadge.textContent = "Ngày mai";
+        relativeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300";
+      } else if (diffDays === -1) {
+        relativeBadge.textContent = "Hôm qua";
+        relativeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
+      } else if (diffDays > 1) {
+        relativeBadge.textContent = `Còn ${diffDays} ngày nữa`;
+        relativeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
+      } else {
+        relativeBadge.textContent = `Cách đây ${Math.abs(diffDays)} ngày`;
+        relativeBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
+      }
+
+      // Thống kê ngày trong năm, tuần trong năm, năm nhuận
+      const leap = isLeapYear(year);
+      const totalDaysInYear = leap ? 366 : 365;
+      const dayOfYear = getDayOfYear(year, month, day);
+      const isoWeek = getISOWeekNumber(year, month, day);
+
+      document.getElementById("dayOfYearStat").textContent = `${dayOfYear} / ${totalDaysInYear}`;
+      document.getElementById("weekOfYearStat").textContent = `Tuần ${isoWeek}`;
+      document.getElementById("leapYearStat").textContent = leap ? "Năm nhuận" : "Năm thường";
+
+      // Render ngày lễ của ngày đang chọn
+      const holidays = getHolidaysForDate(year, month, day);
+      const holidaysContainer = document.getElementById("selectedHolidaysContainer");
+
+      if (holidays.length > 0) {
+        holidaysContainer.innerHTML = holidays.map(h => `
+          <div class="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-500/10 border border-rose-200/70 dark:border-rose-500/20">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="font-bold text-sm text-rose-700 dark:text-rose-300">${h.title}</span>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide bg-rose-500/15 text-rose-700 dark:text-rose-300 shrink-0">
+                ${h.category}
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              ${h.desc}
+            </p>
+          </div>
+        `).join("");
+      } else {
+        holidaysContainer.innerHTML = `
+          <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Không có ngày lễ dương lịch cố định nào trong ngày này.</span>
+          </div>
+        `;
+      }
+
+      // Render danh sách nhanh các ngày lễ trong tháng đang xem
+      renderMonthHolidaysSummary();
+    }
+
+    function renderMonthHolidaysSummary() {
+      const { viewYear, viewMonth } = state;
+      const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+      const monthEvents = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const list = getHolidaysForDate(viewYear, viewMonth, d);
+        list.forEach(item => {
+          monthEvents.push({ day: d, ...item });
+        });
+      }
+
+      const summaryEl = document.getElementById("monthHolidaysSummary");
+      if (monthEvents.length === 0) {
+        summaryEl.innerHTML = `
+          <div class="text-[11px] text-slate-400 dark:text-slate-500">
+            Tháng ${viewMonth + 1} không có ngày lễ dương lịch nổi bật.
+          </div>
+        `;
+        return;
+      }
+
+      const itemsHtml = monthEvents.map(ev => {
+        const isCurrentSelected = state.selected.year === viewYear && state.selected.month === viewMonth && state.selected.day === ev.day;
+        return `
+          <button type="button" data-jump-day="${ev.day}"
+            class="w-full text-left flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl text-xs transition-colors ${
+              isCurrentSelected
+                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-semibold"
+                : "hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-300"
+            }">
+            <span class="truncate">${ev.title}</span>
+            <span class="font-mono text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
+              ${String(ev.day).padStart(2, "0")}/${String(viewMonth + 1).padStart(2, "0")}
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      summaryEl.innerHTML = `
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+          Ngày lễ trong Tháng ${viewMonth + 1} (${monthEvents.length})
+        </div>
+        <div class="space-y-1 max-h-32 overflow-y-auto pr-1">
+          ${itemsHtml}
+        </div>
+      `;
+
+      summaryEl.querySelectorAll("[data-jump-day]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const d = parseInt(btn.getAttribute("data-jump-day"), 10);
+          selectDate(viewYear, viewMonth, d);
+        });
+      });
+    }
+
+    /**
+     * =========================================================================
+     * RENDER & QUẢN LÝ GHI CHÚ CÁ NHÂN (LOCALSTORAGE)
+     * =========================================================================
+     */
+    function renderNotes() {
+      const { year, month, day } = state.selected;
+      const dateKey = formatDateKey(year, month, day);
+      const notes = state.notes[dateKey] || [];
+
+      const countBadge = document.getElementById("notesCountBadge");
+      countBadge.textContent = `${notes.length} ghi chú`;
+
+      const listEl = document.getElementById("notesList");
+
+      if (notes.length === 0) {
+        listEl.innerHTML = `
+          <div class="py-6 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+            <p class="text-xs text-slate-400 dark:text-slate-500">
+              Chưa có ghi chú nào cho ngày ${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = notes.map(note => `
+        <div class="group flex items-start justify-between gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700/70 transition-all">
+          <label class="flex items-start gap-2.5 flex-1 min-w-0 cursor-pointer select-none">
+            <input type="checkbox" data-toggle-note="${note.id}" ${note.completed ? "checked" : ""}
+              class="mt-0.5 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0" />
+            <span class="text-xs sm:text-sm break-words leading-snug ${
+              note.completed
+                ? "line-through text-slate-400 dark:text-slate-500"
+                : "text-slate-700 dark:text-slate-200"
+            }">
+              ${escapeHtml(note.text)}
+            </span>
+          </label>
+          <button type="button" data-delete-note="${note.id}" title="Xóa ghi chú" aria-label="Xóa ghi chú"
+            class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/15 transition-colors shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      `).join("");
+
+      // Gắn sự kiện đánh dấu hoàn thành
+      listEl.querySelectorAll("[data-toggle-note]").forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+          const id = checkbox.getAttribute("data-toggle-note");
+          toggleNoteStatus(dateKey, id);
+        });
+      });
+
+      // Gắn sự kiện xóa ghi chú
+      listEl.querySelectorAll("[data-delete-note]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-delete-note");
+          deleteNote(dateKey, id);
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addNote(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const { year, month, day } = state.selected;
+      const dateKey = formatDateKey(year, month, day);
+
+      if (!state.notes[dateKey]) {
+        state.notes[dateKey] = [];
+      }
+
+      state.notes[dateKey].unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        text: trimmed,
+        completed: false
+      });
+
+      saveNotesToStorage();
+      renderNotes();
+      renderCalendarGrid();
+      showToast("Đã lưu ghi chú mới.", "success");
+    }
+
+    function toggleNoteStatus(dateKey, noteId) {
+      const list = state.notes[dateKey];
+      if (!list) return;
+      const target = list.find(n => n.id === noteId);
+      if (target) {
+        target.completed = !target.completed;
+        saveNotesToStorage();
+        renderNotes();
+      }
+    }
+
+    function deleteNote(dateKey, noteId) {
+      const list = state.notes[dateKey];
+      if (!list) return;
+      state.notes[dateKey] = list.filter(n => n.id !== noteId);
+      if (state.notes[dateKey].length === 0) {
+        delete state.notes[dateKey];
+      }
+      saveNotesToStorage();
+      renderNotes();
+      renderCalendarGrid();
+      showToast("Đã xóa ghi chú.", "info");
+    }
+
+    /**
+     * =========================================================================
+     * ĐIỀU HƯỚNG LỊCH & CHỌN NGÀY
+     * =========================================================================
+     */
+    function selectDate(year, monthIndex, day) {
+      const safeYear = clampYear(year);
+      const safeDay = clampDay(safeYear, monthIndex, day);
+
+      state.selected = {
+        year: safeYear,
+        month: monthIndex,
+        day: safeDay
+      };
+      state.viewYear = safeYear;
+      state.viewMonth = monthIndex;
+
+      renderAll();
+    }
+
+    function changeMonth(delta) {
+      let newMonth = state.viewMonth + delta;
+      let newYear = state.viewYear;
+
+      if (newMonth > 11) {
+        newMonth = 0;
+        newYear += 1;
+      } else if (newMonth < 0) {
+        newMonth = 11;
+        newYear -= 1;
+      }
+
+      if (newYear < MIN_YEAR || newYear > MAX_YEAR) return;
+
+      state.viewYear = newYear;
+      state.viewMonth = newMonth;
+      state.selected = {
+        year: newYear,
+        month: newMonth,
+        day: clampDay(newYear, newMonth, state.selected.day)
+      };
+
+      renderAll();
+    }
+
+    function changeYear(delta) {
+      const newYear = clampYear(state.viewYear + delta);
+      if (newYear === state.viewYear) return;
+
+      state.viewYear = newYear;
+      state.selected = {
+        year: newYear,
+        month: state.viewMonth,
+        day: clampDay(newYear, state.viewMonth, state.selected.day)
+      };
+
+      renderAll();
+    }
+
+    function goToToday() {
+      const freshToday = getTodayObject();
+      state.today = freshToday;
+      selectDate(freshToday.year, freshToday.month, freshToday.day);
+      showToast("Đã chuyển về ngày hôm nay.", "info");
+    }
+
+    function renderAll() {
+      renderCalendarGrid();
+      renderDateDetails();
+      renderNotes();
+    }
+
+    /**
+     * =========================================================================
+     * KHỞI TẠO SỰ KIỆN TƯƠNG TÁC (CHUỘT, BÀN PHÍM, CẢM ỨNG)
+     * =========================================================================
+     */
+    function bindEvents() {
+      // Nút chuyển giao diện Sáng / Tối
+      document.getElementById("themeToggleBtn").addEventListener("click", () => {
+        const isCurrentlyDark = document.documentElement.classList.contains("dark");
+        applyTheme(!isCurrentlyDark);
+      });
+
+      // Các nút điều hướng
+      document.getElementById("prevMonthBtn").addEventListener("click", () => changeMonth(-1));
+      document.getElementById("nextMonthBtn").addEventListener("click", () => changeMonth(1));
+      document.getElementById("prevYearBtn").addEventListener("click", () => changeYear(-1));
+      document.getElementById("nextYearBtn").addEventListener("click", () => changeYear(1));
+      document.getElementById("todayBtn").addEventListener("click", goToToday);
+      document.getElementById("headerTodayBtn").addEventListener("click", goToToday);
+
+      // Bộ chọn nhanh Tháng / Năm
+      document.getElementById("monthSelect").addEventListener("change", (e) => {
+        const newMonth = parseInt(e.target.value, 10);
+        state.viewMonth = newMonth;
+        state.selected = {
+          year: state.viewYear,
+          month: newMonth,
+          day: clampDay(state.viewYear, newMonth, state.selected.day)
+        };
+        renderAll();
+      });
+
+      document.getElementById("yearSelect").addEventListener("change", (e) => {
+        const newYear = clampYear(parseInt(e.target.value, 10));
+        state.viewYear = newYear;
+        state.selected = {
+          year: newYear,
+          month: state.viewMonth,
+          day: clampDay(newYear, state.viewMonth, state.selected.day)
+        };
+        renderAll();
+      });
+
+      // Form thêm ghi chú
+      document.getElementById("noteForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = document.getElementById("noteInput");
+        if (input.value.trim()) {
+          addNote(input.value);
+          input.value = "";
+        }
+      });
+
+      // Điều hướng bằng bàn phím (khi không đang nhập liệu trong ô input/select)
+      document.addEventListener("keydown", (e) => {
+        const tag = document.activeElement ? document.activeElement.tagName : "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+        const { year, month, day } = state.selected;
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          const prev = new Date(year, month, day - 1);
+          if (prev.getFullYear() >= MIN_YEAR) {
+            selectDate(prev.getFullYear(), prev.getMonth(), prev.getDate());
+          }
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          const next = new Date(year, month, day + 1);
+          if (next.getFullYear() <= MAX_YEAR) {
+            selectDate(next.getFullYear(), next.getMonth(), next.getDate());
+          }
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          const prevWeek = new Date(year, month, day - 7);
+          if (prevWeek.getFullYear() >= MIN_YEAR) {
+            selectDate(prevWeek.getFullYear(), prevWeek.getMonth(), prevWeek.getDate());
+          }
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          const nextWeek = new Date(year, month, day + 7);
+          if (nextWeek.getFullYear() <= MAX_YEAR) {
+            selectDate(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate());
+          }
+        }
+      });
+
+      // Hỗ trợ vuốt trái/phải trên lưới lịch để đổi tháng trên thiết bị cảm ứng
+      const calendarGrid = document.getElementById("calendarGrid");
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      calendarGrid.addEventListener("touchstart", (e) => {
+        if (e.changedTouches.length > 0) {
+          touchStartX = e.changedTouches[0].clientX;
+          touchStartY = e.changedTouches[0].clientY;
+        }
+      }, { passive: true });
+
+      calendarGrid.addEventListener("touchend", (e) => {
+        if (e.changedTouches.length > 0) {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+            if (dx < 0) {
+              changeMonth(1);
+            } else {
+              changeMonth(-1);
+            }
+          }
+        }
+      }, { passive: true });
+    }
+
+    // Khởi chạy ứng dụng khi tải trang
+    window.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+      populateSelectors();
+      bindEvents();
+      renderAll();
+      updateLiveClock();
+      setInterval(updateLiveClock, 1000);
+    });
+  </script>
+</body>
+</html>
